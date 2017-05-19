@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Falco the Hawk</title>
+</head>
+<body>
+<audio autoplay>
+  <source src="sawsquarenoise_-_01_-_Interstellar.mp3" type="audio/mpeg">
+</audio>
+<div id="game_container"></div>
+<div id="log"></div>
+
+<script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+<script src="//cdn.jsdelivr.net/sockjs/1.0.0/sockjs.min.js"></script>
+<script src="node_modules/vertx3-eventbus-client/vertx-eventbus.js"></script>
+<script src="game.js" type='text/javascript'></script><br/>
+<div style="position: absolute; top: 50px; left: 1000px;">
+  <div id="score">0</div><br/><br/>
+  <a href="http://www.hawkular.org/"><img id="hawkular_logo" src="hawkular_logo.png"></a><br/>
+  <div style="font-weight: bold; font-size: 13pt;">Help Falco the Hawk to retrieve his monocle. But beware the exceptions! Catch'em, log them and track your performance.</div><br/>
+  Music by <a href="http://freemusicarchive.org/music/sawsquarenoise/">sawsquarenoise</a> (<a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>)
+</div>
+</body>
+</html>
