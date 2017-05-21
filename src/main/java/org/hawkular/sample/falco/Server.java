@@ -100,7 +100,6 @@ public class Server extends AbstractVerticle {
                 generateException();
                 future.complete();
             }, res -> {});
-            generateException();
         });
         eb.consumer("nodes", msg -> {
             int nodes = (int) msg.body();

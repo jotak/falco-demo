@@ -207,6 +207,7 @@ function takeWeight(toAdd) {
                     paramMax: 110
                 }
             });
+            Game.step += 5;
 		}
 		if (newScoreLevel == 4) {
 		    // Enable flying spaghetti monster
@@ -241,7 +242,7 @@ function takeWeight(toAdd) {
             Game.allTemplates.push({
                 w: 128,
                 h: 116,
-                background: "fscm-128.png",
+                background: "fscm.png",
                 type: "fscm",
                 weight: 300,
                 behavior: {
@@ -250,6 +251,7 @@ function takeWeight(toAdd) {
                     paramMax: 190
                 }
             });
+            Game.step += 5;
 		}
 	}
 	$("#score").html(Game.player.score);
@@ -512,12 +514,12 @@ function showCleanImages() {
     Game.player.div.css("background", "url('falco-clean.png')");
 }
 
-function gotMonocle() {
+function gotMonocle(monocle) {
     showMessage(0, 100, "YYYYYYY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;YYYYYYY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OOOOOOOOO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UUUUUUUU&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UUUUUUUU&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WWWWWWWW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WWWWWWWWIIIIIIIIIINNNNNNNN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NNNNNNNN<br/>Y:::::Y&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Y:::::Y&nbsp;&nbsp;&nbsp;OO:::::::::OO&nbsp;&nbsp;&nbsp;U::::::U&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;U::::::U&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W::::::W&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W::::::WI::::::::IN:::::::N&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;N::::::N<br/>Y:::::Y&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Y:::::Y&nbsp;OO:::::::::::::OO&nbsp;U::::::U&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;U::::::U&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W::::::W&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W::::::WI::::::::IN::::::::N&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;N::::::N<br/>Y::::::Y&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Y::::::YO:::::::OOO:::::::OUU:::::U&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;U:::::UU&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W::::::W&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W::::::WII::::::IIN:::::::::N&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;N::::::N<br/>YYY:::::Y&nbsp;&nbsp;&nbsp;Y:::::YYYO::::::O&nbsp;&nbsp;&nbsp;O::::::O&nbsp;U:::::U&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;U:::::U&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W:::::W&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WWWWW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W:::::W&nbsp;&nbsp;&nbsp;I::::I&nbsp;&nbsp;N::::::::::N&nbsp;&nbsp;&nbsp;&nbsp;N::::::N<br/>&nbsp;&nbsp;&nbsp;Y:::::Y&nbsp;Y:::::Y&nbsp;&nbsp;&nbsp;O:::::O&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;O:::::O&nbsp;U:::::D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;D:::::U&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W:::::W&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W:::::W&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W:::::W&nbsp;&nbsp;&nbsp;&nbsp;I::::I&nbsp;&nbsp;N:::::::::::N&nbsp;&nbsp;&nbsp;N::::::N<br/>&nbsp;&nbsp;&nbsp;&nbsp;Y:::::Y:::::Y&nbsp;&nbsp;&nbsp;&nbsp;O:::::O&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;O:::::O&nbsp;U:::::D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;D:::::U&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W:::::W&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W:::::::W&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W:::::W&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I::::I&nbsp;&nbsp;N:::::::N::::N&nbsp;&nbsp;N::::::N<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Y:::::::::Y&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;O:::::O&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;O:::::O&nbsp;U:::::D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;D:::::U&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W:::::W&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W:::::::::W&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W:::::W&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I::::I&nbsp;&nbsp;N::::::N&nbsp;N::::N&nbsp;N::::::N<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Y:::::::Y&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;O:::::O&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;O:::::O&nbsp;U:::::D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;D:::::U&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W:::::W&nbsp;&nbsp;&nbsp;W:::::W:::::W&nbsp;&nbsp;&nbsp;W:::::W&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I::::I&nbsp;&nbsp;N::::::N&nbsp;&nbsp;N::::N:::::::N<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Y:::::Y&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;O:::::O&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;O:::::O&nbsp;U:::::D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;D:::::U&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W:::::W&nbsp;W:::::W&nbsp;W:::::W&nbsp;W:::::W&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I::::I&nbsp;&nbsp;N::::::N&nbsp;&nbsp;&nbsp;N:::::::::::N<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Y:::::Y&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;O:::::O&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;O:::::O&nbsp;U:::::D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;D:::::U&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W:::::W:::::W&nbsp;&nbsp;&nbsp;W:::::W:::::W&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I::::I&nbsp;&nbsp;N::::::N&nbsp;&nbsp;&nbsp;&nbsp;N::::::::::N<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Y:::::Y&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;O::::::O&nbsp;&nbsp;&nbsp;O::::::O&nbsp;U::::::U&nbsp;&nbsp;&nbsp;U::::::U&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W:::::::::W&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W:::::::::W&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I::::I&nbsp;&nbsp;N::::::N&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;N:::::::::N<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Y:::::Y&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;O:::::::OOO:::::::O&nbsp;U:::::::UUU:::::::U&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W:::::::W&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W:::::::W&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;II::::::IIN::::::N&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;N::::::::N<br/>&nbsp;&nbsp;&nbsp;&nbsp;YYYY:::::YYYY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OO:::::::::::::OO&nbsp;&nbsp;&nbsp;UU:::::::::::::UU&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W:::::W&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W:::::W&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I::::::::IN::::::N&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;N:::::::N<br/>&nbsp;&nbsp;&nbsp;&nbsp;Y:::::::::::Y&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OO:::::::::OO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UU:::::::::UU&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W:::W&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W:::W&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I::::::::IN::::::N&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;N::::::N<br/>&nbsp;&nbsp;&nbsp;&nbsp;YYYYYYYYYYYYY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OOOOOOOOO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UUUUUUUUU&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WWW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WWW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IIIIIIIIIINNNNNNNN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NNNNNNN<br/>")
     showCleanImages();
 	for (var i in Game.allObjects) {
 		var obj = Game.allObjects[i];
-		if (obj.type != "player") {
+		if (obj != monocle && obj.type != "player") {
             explode(obj.getX() + obj.w/2, obj.getY() + obj.h/2);
             obj.div.remove();
 		}
@@ -578,7 +580,7 @@ function update() {
 	                $("#nodes").html(Game.player.nodes);
                     eb.send("nodes", Game.player.nodes);
                 } else if (obj.type == "goal") {
-                    gotMonocle();
+                    gotMonocle(obj);
                 }
 			} else if (obj.x < -30) {
 				listToDelete[listToDelete.length] = i;
