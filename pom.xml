@@ -29,7 +29,7 @@
 
     <dependency>
       <groupId>io.vertx</groupId>
-      <artifactId>vertx-dropwizard-metrics</artifactId>
+      <artifactId>vertx-hawkular-metrics</artifactId>
       <version>${vertx.version}</version>
     </dependency>
 

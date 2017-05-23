@@ -3,17 +3,12 @@ package org.hawkular.sample.falco;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 import org.hawkular.metrics.client.HawkularClient;
 import org.hawkular.metrics.client.HawkularClientBuilder;
 import org.hawkular.metrics.client.HawkularLogger;
-import org.hawkular.metrics.client.binder.HawkularDropwizardBinder;
 import org.hawkular.metrics.client.model.Gauge;
 import org.hawkular.metrics.client.model.Logger;
-
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.SharedMetricRegistries;
 
 import flying.spaghetti.code.monster.TotalNonSense;
 import io.vertx.core.AbstractVerticle;
@@ -22,7 +17,8 @@ import io.vertx.core.VertxOptions;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.dropwizard.DropwizardMetricsOptions;
+import io.vertx.ext.hawkular.AuthenticationOptions;
+import io.vertx.ext.hawkular.VertxHawkularOptions;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
@@ -36,20 +32,24 @@ public class GameMonitoring extends AbstractVerticle {
     private final HawkularClient hawkular;
     private final HawkularLogger hawkularLogger;
 
-    private GameMonitoring(MetricRegistry dwRegistry) {
+    private GameMonitoring() {
         hawkular = hawkularBuilder().build();
         hawkularLogger = hawkularBuilder().buildLogger(GameMonitoring.class);
-        HawkularDropwizardBinder
-                .fromRegistry(dwRegistry)
-                .withTag("source", "vertx")
-                .bindWith(hawkular.getInfo(), 1, TimeUnit.SECONDS);
     }
 
     public static void main(String[] args) {
         Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
-                new DropwizardMetricsOptions().setEnabled(true).setRegistryName("reg")));
-        vertx.deployVerticle(new GameMonitoring(
-                SharedMetricRegistries.getOrCreate("reg")));
+                new VertxHawkularOptions()
+						.setEnabled(true)
+						.setTenant("falco2")
+						.setHost("localhost")
+						.setPort(8080)
+                        .setAuthenticationOptions(
+                                new AuthenticationOptions()
+                                        .setEnabled(true)
+                                        .setId("jdoe")
+                                        .setSecret("password"))));
+        vertx.deployVerticle(new GameMonitoring());
     }
 
     private static HawkularClientBuilder hawkularBuilder() {
