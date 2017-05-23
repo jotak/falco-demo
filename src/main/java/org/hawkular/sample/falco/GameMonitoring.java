@@ -3,64 +3,70 @@ package org.hawkular.sample.falco;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
+import org.hawkular.metrics.client.HawkularClient;
+import org.hawkular.metrics.client.HawkularClientBuilder;
+import org.hawkular.metrics.client.HawkularLogger;
+import org.hawkular.metrics.client.binder.HawkularDropwizardBinder;
+import org.hawkular.metrics.client.model.Gauge;
+import org.hawkular.metrics.client.model.Logger;
+
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.SharedMetricRegistries;
 
 import flying.spaghetti.code.monster.TotalNonSense;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
+import io.vertx.core.VertxOptions;
 import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
+import io.vertx.ext.dropwizard.DropwizardMetricsOptions;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.PermittedOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 
-/**
- * A {@link io.vertx.core.Verticle} which bridges the browser to the  @{link EventBus}. The client setup is using the
- * common js module.
- *
- * @author <a href="https://github.com/pmlopes">Paulo Lopes</a>
- */
-public class Server extends AbstractVerticle {
+public class GameMonitoring extends AbstractVerticle {
 
     private static final Random RANDOM = new Random();
 
-    // Convenience method so you can run it in your IDE
+    private final HawkularClient hawkular;
+    private final HawkularLogger hawkularLogger;
+
+    private GameMonitoring(MetricRegistry dwRegistry) {
+        hawkular = hawkularBuilder().build();
+        hawkularLogger = hawkularBuilder().buildLogger(GameMonitoring.class);
+        HawkularDropwizardBinder
+                .fromRegistry(dwRegistry)
+                .withTag("source", "vertx")
+                .bindWith(hawkular.getInfo(), 1, TimeUnit.SECONDS);
+    }
+
     public static void main(String[] args) {
+        Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
+                new DropwizardMetricsOptions().setEnabled(true).setRegistryName("reg")));
+        vertx.deployVerticle(new GameMonitoring(
+                SharedMetricRegistries.getOrCreate("reg")));
+    }
 
-
-//		String hostname;
-//		try {
-//			hostname = InetAddress.getLocalHost().getHostName();
-//		} catch (UnknownHostException e) {
-//			hostname = UUID.randomUUID().toString();
-//		}
-//		if (hostname == null) {
-//			hostname = UUID.randomUUID().toString();
-//		}
-        Vertx vertx = Vertx.vertx(/*new VertxOptions().setMetricsOptions(
-                new VertxHawkularOptions()
-						.setEnabled(true)
-						.setTenant("aloha")
-						.setHost("metrics.10.1.2.2.xip.io")
-						.setMetricsServiceUri()
-						.setPort(443)
-						.setHttpOptions(new HttpClientOptions().setSsl(true).setVerifyHost(false).setTrustAll(true))
-						.setHttpHeaders(new JsonObject().put("Authorization", "Bearer LBffDmgGwV4Ez0Zv0dq1ZHcKLXddKiA9Rw1nx0za9LY"))
-						.setPrefix(hostname + "/")
-		)*/);
-        vertx.deployVerticle(new Server());
+    private static HawkularClientBuilder hawkularBuilder() {
+        return new HawkularClientBuilder("falco")
+                .basicAuth("jdoe", "password");
     }
 
     @Override
     public void start() throws Exception {
-
         Router router = Router.router(vertx);
 
         // Allow events for the designated addresses in/out of the event bus bridge
         BridgeOptions opts = new BridgeOptions()
                 .addOutboundPermitted(new PermittedOptions().setAddress("logs"))
+                .addInboundPermitted(new PermittedOptions().setAddress("init-session"))
                 .addInboundPermitted(new PermittedOptions().setAddress("new-score"))
-                .addInboundPermitted(new PermittedOptions().setAddress("new-heat"))
+                .addInboundPermitted(new PermittedOptions().setAddress("heat"))
                 .addInboundPermitted(new PermittedOptions().setAddress("new-level"))
                 .addInboundPermitted(new PermittedOptions().setAddress("overheated"))
                 .addInboundPermitted(new PermittedOptions().setAddress("fscm"))
@@ -76,41 +82,79 @@ public class Server extends AbstractVerticle {
         router.route().handler(StaticHandler.create());
 
         // Start the web server and tell it to use the router to handle requests.
-        vertx.createHttpServer().requestHandler(router::accept).listen(8080);
+        vertx.createHttpServer().requestHandler(router::accept).listen(8081);
 
         EventBus eb = vertx.eventBus();
-        eb.consumer("new-score", msg -> {
-            int score = (int) msg.body();
-            System.out.println("New score: " + score);
+        eb.consumer("init-session", msg -> {
+            String playerName = playerName(msg);
+            score(playerName).set(0);
+            heat(playerName).set(100);
+            level(playerName).set(0);
+            heatLimit(playerName).set(200);
+            timeline(playerName).log("Starting new game");
         });
-        eb.consumer("new-heat", msg -> {
-            Number heat = (Number) msg.body();
-            System.out.println("New heat: " + heat);
-        });
-        eb.consumer("new-level", msg -> {
-            int level = (int) msg.body();
-            System.out.println("New level: " + level);
-        });
-        eb.consumer("overheated", msg -> {
-            System.out.println("Overheated :-(");
-        });
+        eb.consumer("new-score", msg -> score(playerName(msg)).set((int) value(msg)));
+        eb.consumer("heat", msg -> heat(playerName(msg)).set(((Number) value(msg)).doubleValue()));
+        eb.consumer("new-level", msg -> level(playerName(msg)).set((int) value(msg)));
+        eb.consumer("overheated", msg -> timeline(playerName(msg)).log("Overheated :-("));
         eb.consumer("fscm", msg -> {
-            System.out.println("Careful! Just caught an Flying Spaghetti Code Monster! What could go wrong?");
+            timeline(playerName(msg)).log("Careful! Just caught an Flying Spaghetti Code Monster! What could go wrong?");
             vertx.executeBlocking(future -> {
                 generateException();
                 future.complete();
             }, res -> {});
         });
-        eb.consumer("nodes", msg -> {
-            int nodes = (int) msg.body();
-            System.out.println("Nodes: " + nodes);
-        });
-        eb.consumer("won", msg -> {
-            System.out.println("WON!");
-        });
-        eb.consumer("game-over", msg -> {
-            System.out.println("GAME OVER!");
-        });
+        eb.consumer("nodes", msg -> heatLimit(playerName(msg)).set(200 * (int) value(msg)));
+        eb.consumer("won", msg -> timeline(playerName(msg)).log("WON!"));
+        eb.consumer("game-over", msg -> timeline(playerName(msg)).log("GAME OVER!"));
+    }
+
+    private static String playerName(Message msg) {
+        return ((JsonObject) (msg.body())).getString("name");
+    }
+
+    private static Object value(Message msg) {
+        return ((JsonObject) (msg.body())).getValue("value");
+    }
+
+    private Gauge score(String playerName) {
+        return hawkular.metricBuilder()
+                .addSegment("source", "falco")
+                .addSegment("player", playerName)
+                .addSegment("metric", "score")
+                .toGauge();
+    }
+
+    private Gauge heat(String playerName) {
+        return hawkular.metricBuilder()
+                .addSegment("source", "falco")
+                .addSegment("player", playerName)
+                .addSegment("metric", "heat")
+                .toGauge();
+    }
+
+    private Gauge level(String playerName) {
+        return hawkular.metricBuilder()
+                .addSegment("source", "falco")
+                .addSegment("player", playerName)
+                .addSegment("metric", "level")
+                .toGauge();
+    }
+
+    private Gauge heatLimit(String playerName) {
+        return hawkular.metricBuilder()
+                .addSegment("source", "falco")
+                .addSegment("player", playerName)
+                .addSegment("metric", "heat-limit")
+                .toGauge();
+    }
+
+    private Logger timeline(String playerName) {
+        return hawkular.metricBuilder()
+                .addSegment("source", "falco")
+                .addSegment("player", playerName)
+                .addSegment("metric", "timeline")
+                .toLogger();
     }
 
     private void generateException() {
@@ -175,6 +219,7 @@ public class Server extends AbstractVerticle {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
             e.printStackTrace(pw);
+            hawkularLogger.error(e);
             vertx.eventBus().send("logs", sw.toString());
         }
     }

@@ -10,6 +10,7 @@
 
   <properties>
     <vertx.version>3.4.1</vertx.version>
+    <hawkular-toolbox.version>0.1.0-SNAPSHOT</hawkular-toolbox.version>
   </properties>
 
   <dependencies>
@@ -24,6 +25,24 @@
       <groupId>io.vertx</groupId>
       <artifactId>vertx-web</artifactId>
       <version>${vertx.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-dropwizard-metrics</artifactId>
+      <version>${vertx.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hawkular.metrics</groupId>
+      <artifactId>hawkular-java-toolbox</artifactId>
+      <version>${hawkular-toolbox.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hawkular.metrics</groupId>
+      <artifactId>hawkular-java-toolbox-dropwizard</artifactId>
+      <version>${hawkular-toolbox.version}</version>
     </dependency>
 
   </dependencies>

@@ -1,9 +1,20 @@
 var eb = new EventBus('/eventbus/');
 
+function ebmsg(value) {
+    var msg = {
+        name: $("#player-name").val()
+    };
+    if (value !== undefined) {
+        msg.value = value;
+    }
+    return msg;
+}
+
 eb.onopen = function () {
   eb.registerHandler('logs', function (err, msg) {
       showMessage(100, 300, msg.body);
   });
+  eb.send("init-session", ebmsg());
 };
 
 var Game = {
@@ -146,14 +157,14 @@ function displayHeat() {
 function takeWeight(toAdd) {
 	var oldScoreLevel = Math.floor(Game.player.score / 200);
 	Game.player.score += toAdd;
-    eb.send("new-score", Game.player.score);
+    eb.send("new-score", ebmsg(Game.player.score));
 	Game.player.heatgauge += toAdd;
-    eb.send("new-heat", Game.player.heatgauge);
+    eb.send("heat", ebmsg(Game.player.heatgauge));
 	var newScoreLevel = Math.floor(Game.player.score / 200);
 	if (oldScoreLevel != newScoreLevel) {
 		showMessage(0, 100, "&nbsp;&nbsp;&nbsp;.d8888b.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;888&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;d8b&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;888&nbsp;888&nbsp;<br/>&nbsp;&nbsp;d88P&nbsp;&nbsp;Y88b&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;888&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Y8P&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;888&nbsp;888&nbsp;<br/>&nbsp;&nbsp;Y88b.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;888&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;888&nbsp;888&nbsp;<br/>&nbsp;&nbsp;&nbsp;\"Y888b.&nbsp;&nbsp;&nbsp;88888b.&nbsp;&nbsp;&nbsp;.d88b.&nbsp;&nbsp;&nbsp;.d88b.&nbsp;&nbsp;&nbsp;.d88888&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;888&nbsp;88888b.&nbsp;&nbsp;&nbsp;.d8888b&nbsp;888d888&nbsp;.d88b.&nbsp;&nbsp;&nbsp;8888b.&nbsp;&nbsp;.d8888b&nbsp;&nbsp;&nbsp;.d88b.&nbsp;&nbsp;&nbsp;.d88888&nbsp;888&nbsp;<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\"Y88b.&nbsp;888&nbsp;\"88b&nbsp;d8P&nbsp;&nbsp;Y8b&nbsp;d8P&nbsp;&nbsp;Y8b&nbsp;d88\"&nbsp;888&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;888&nbsp;888&nbsp;\"88b&nbsp;d88P\"&nbsp;&nbsp;&nbsp;&nbsp;888P\"&nbsp;&nbsp;d8P&nbsp;&nbsp;Y8b&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\"88b&nbsp;88K&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;d8P&nbsp;&nbsp;Y8b&nbsp;d88\"&nbsp;888&nbsp;888&nbsp;<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\"888&nbsp;888&nbsp;&nbsp;888&nbsp;88888888&nbsp;88888888&nbsp;888&nbsp;&nbsp;888&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;888&nbsp;888&nbsp;&nbsp;888&nbsp;888&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;888&nbsp;&nbsp;&nbsp;&nbsp;88888888&nbsp;.d888888&nbsp;\"Y8888b.&nbsp;88888888&nbsp;888&nbsp;&nbsp;888&nbsp;Y8P&nbsp;<br/>&nbsp;&nbsp;Y88b&nbsp;&nbsp;d88P&nbsp;888&nbsp;d88P&nbsp;Y8b.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Y8b.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Y88b&nbsp;888&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;888&nbsp;888&nbsp;&nbsp;888&nbsp;Y88b.&nbsp;&nbsp;&nbsp;&nbsp;888&nbsp;&nbsp;&nbsp;&nbsp;Y8b.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;888&nbsp;&nbsp;888&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X88&nbsp;Y8b.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Y88b&nbsp;888&nbsp;&nbsp;\"&nbsp;&nbsp;<br/>&nbsp;&nbsp;&nbsp;\"Y8888P\"&nbsp;&nbsp;88888P\"&nbsp;&nbsp;&nbsp;\"Y8888&nbsp;&nbsp;&nbsp;\"Y8888&nbsp;&nbsp;&nbsp;\"Y88888&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;888&nbsp;888&nbsp;&nbsp;888&nbsp;&nbsp;\"Y8888P&nbsp;888&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\"Y8888&nbsp;&nbsp;\"Y888888&nbsp;&nbsp;88888P'&nbsp;&nbsp;\"Y8888&nbsp;&nbsp;&nbsp;\"Y88888&nbsp;888&nbsp;<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;888&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;888&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;888&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>");
 		Game.speedFactor++;
-		eb.send("new-level", newScoreLevel);
+		eb.send("new-level", ebmsg(newScoreLevel));
 		// Level up, new items may appear
 		if (newScoreLevel == 2) {
 		    // Enable cassandra & big apps
@@ -527,7 +538,7 @@ function gotMonocle(monocle) {
     Game.allObjects = [];
     clearInterval(Game.gameLoop);
     Game.gameLoop = undefined;
-    eb.send("won", "");
+    eb.send("won", ebmsg());
 }
 
 function setDead() {
@@ -546,7 +557,7 @@ function setDead() {
     Game.allObjects = [];
     clearInterval(Game.gameLoop);
     Game.gameLoop = undefined;
-    eb.send("game-over", "");
+    eb.send("game-over", ebmsg());
 }
 
 function update() {
@@ -567,18 +578,18 @@ function update() {
                                  "Errrr I can't do that. I'm full, see my heat gauge.",
                                  "I wonder if they're ways to scale up..."]);
                         }
-                        eb.send("overheated", Game.player.nodes);
+                        eb.send("overheated", ebmsg());
                         explode(obj.getX() + obj.w/2, obj.getY() + obj.h/2);
                     } else {
         				takeWeight(obj.weight);
         				if (obj.type == "fscm") {
-                            eb.send("fscm", Game.player.nodes);
+                            eb.send("fscm", ebmsg());
         				}
                     }
                 } else if (obj.type == "scale") {
                     Game.player.nodes++;
 	                $("#nodes").html(Game.player.nodes);
-                    eb.send("nodes", Game.player.nodes);
+                    eb.send("nodes", ebmsg(Game.player.nodes));
                 } else if (obj.type == "goal") {
                     gotMonocle(obj);
                 }
@@ -597,12 +608,9 @@ function update() {
 	var coolDown = Game.speedFactor * 30 / Game.delta;
 	Game.player.heatgauge -= coolDown;
 	displayHeat();
+    eb.send("heat", ebmsg(Game.player.heatgauge));
 	if (Game.player.heatgauge <= 0) {
 	    // DEATH!
 	    setDead();
 	}
 }
-
-$(document).ready(function() {
-	init();
-});
