@@ -28,33 +28,40 @@ import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 public class GameMonitoring extends AbstractVerticle {
 
     private static final Random RANDOM = new Random();
+    private static final String HAWKULAR_HOST = "localhost";
+    private static final int HAWKULAR_PORT = 8080;
+    private static final String HAWKULAR_URI = "http://" + HAWKULAR_HOST + ":" + HAWKULAR_PORT;
+    private static final String HAWKULAR_TENANT = "falco";
+    private static final String HAWKULAR_USERNAME = "jdoe";
+    private static final String HAWKULAR_PASSWORD = "password";
 
     private final HawkularClient hawkular;
     private final HawkularLogger hawkularLogger;
 
     private GameMonitoring() {
-        hawkular = hawkularBuilder().build();
-        hawkularLogger = hawkularBuilder().buildLogger(GameMonitoring.class);
+        hawkular = new HawkularClientBuilder(HAWKULAR_TENANT)
+                .uri(HAWKULAR_URI)
+                .basicAuth(HAWKULAR_USERNAME, HAWKULAR_PASSWORD)
+                .build();
+        hawkularLogger = new HawkularClientBuilder(HAWKULAR_TENANT)
+                .uri(HAWKULAR_URI)
+                .basicAuth(HAWKULAR_USERNAME, HAWKULAR_PASSWORD)
+                .buildLogger("falco");
     }
 
     public static void main(String[] args) {
         Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
                 new VertxHawkularOptions()
 						.setEnabled(true)
-						.setTenant("falco2")
-						.setHost("localhost")
-						.setPort(8080)
+						.setTenant(HAWKULAR_TENANT)
+						.setHost(HAWKULAR_HOST)
+						.setPort(HAWKULAR_PORT)
                         .setAuthenticationOptions(
                                 new AuthenticationOptions()
                                         .setEnabled(true)
-                                        .setId("jdoe")
-                                        .setSecret("password"))));
+                                        .setId(HAWKULAR_USERNAME)
+                                        .setSecret(HAWKULAR_PASSWORD))));
         vertx.deployVerticle(new GameMonitoring());
-    }
-
-    private static HawkularClientBuilder hawkularBuilder() {
-        return new HawkularClientBuilder("falco")
-                .basicAuth("jdoe", "password");
     }
 
     @Override

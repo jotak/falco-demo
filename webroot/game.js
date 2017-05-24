@@ -14,7 +14,6 @@ eb.onopen = function () {
   eb.registerHandler('logs', function (err, msg) {
       showMessage(100, 300, msg.body);
   });
-  eb.send("init-session", ebmsg());
 };
 
 var Game = {
@@ -405,6 +404,7 @@ function init() {
 	$("#game_container").css("width", Game.screenWidth);
 	$("#game_container").css("height", Game.screenHeight);
 	$("#game_container").css("border", "1px solid green");
+    eb.send("init-session", ebmsg());
 
 	Game.player = createObject(10, 300, 0, 0, 0, 0, {
 		w: 92,
@@ -465,6 +465,10 @@ function init() {
              "Look all those fancy apps",
              "I can monitor them, let's catch'em!"]);
     }, 10000);
+
+    Game.metRefresh = setInterval(function() {
+        eb.send("nodes", ebmsg(Game.player.nodes));
+    }, 1000);
 }
 
 function createRandomObject() {
@@ -538,6 +542,8 @@ function gotMonocle(monocle) {
     Game.allObjects = [];
     clearInterval(Game.gameLoop);
     Game.gameLoop = undefined;
+    clearInterval(Game.metRefresh);
+    Game.metRefresh = undefined;
     eb.send("won", ebmsg());
 }
 
@@ -557,6 +563,8 @@ function setDead() {
     Game.allObjects = [];
     clearInterval(Game.gameLoop);
     Game.gameLoop = undefined;
+    clearInterval(Game.metRefresh);
+    Game.metRefresh = undefined;
     eb.send("game-over", ebmsg());
 }
 
