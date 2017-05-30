@@ -3,7 +3,7 @@
 Demo of Falco the Hawk.
 
 This game illustrates some usage of [Hawkular](http://www.hawkular.org/) with [Grafana](https://grafana.com/).
-The docker-compose file is made from [Hawkular and Grafana Out of the Box](https://github.com/jotak/hawkular-grafana-outofthebox).
+The docker-compose file is made from "[Hawkular and Grafana Out of the Box](https://github.com/jotak/hawkular-grafana-outofthebox)".
 
 ## Run the game
 
