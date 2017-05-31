@@ -28,8 +28,8 @@ import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 public class GameMonitoring extends AbstractVerticle {
 
     private static final Random RANDOM = new Random();
-    private static final String HAWKULAR_HOST = "localhost";
-    private static final int HAWKULAR_PORT = 8080;
+    private static final String HAWKULAR_HOST = System.getProperty("HAWKULAR_HOST", "localhost");
+    private static final int HAWKULAR_PORT = Integer.parseInt(System.getProperty("HAWKULAR_PORT", "8080"));
     private static final String HAWKULAR_URI = "http://" + HAWKULAR_HOST + ":" + HAWKULAR_PORT;
     private static final String HAWKULAR_TENANT = "falco";
     private static final String HAWKULAR_USERNAME = "jdoe";
@@ -49,19 +49,21 @@ public class GameMonitoring extends AbstractVerticle {
                 .buildLogger("falco");
     }
 
-    public static void main(String[] args) {
-        Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
+    public static void main(String[] args) throws InterruptedException {
+        System.out.println("HAWKULAR_HOST=" + HAWKULAR_HOST);
+        System.out.println("HAWKULAR_PORT=" + HAWKULAR_PORT);
+        VertxOptions options = new VertxOptions().setMetricsOptions(
                 new VertxHawkularOptions()
-						.setEnabled(true)
-						.setTenant(HAWKULAR_TENANT)
-						.setHost(HAWKULAR_HOST)
-						.setPort(HAWKULAR_PORT)
+                        .setEnabled(true)
+                        .setTenant(HAWKULAR_TENANT)
+                        .setHost(HAWKULAR_HOST)
+                        .setPort(HAWKULAR_PORT)
                         .setAuthenticationOptions(
                                 new AuthenticationOptions()
                                         .setEnabled(true)
                                         .setId(HAWKULAR_USERNAME)
-                                        .setSecret(HAWKULAR_PASSWORD))));
-        vertx.deployVerticle(new GameMonitoring());
+                                        .setSecret(HAWKULAR_PASSWORD)));
+        Vertx.vertx(options).deployVerticle(new GameMonitoring());
     }
 
     @Override

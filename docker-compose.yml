@@ -25,3 +25,9 @@ services:
     environment:
       - TENANT=falco
       - DASHBOARDS=vertx-hwk falco
+  falco:
+    image: "jotak/falco-the-hawk:latest"
+    ports:
+      - "8081:8081"
+    environment:
+      - HAWKULAR_HOST=hawkular
