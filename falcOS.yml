@@ -15,16 +15,6 @@ objects:
     selector:
       app: hawkular-cassandra
       deploymentconfig: hawkular-cassandra
-    strategy:
-      activeDeadlineSeconds: 21600
-      resources: {}
-      rollingParams:
-        intervalSeconds: 1
-        maxSurge: 25%
-        maxUnavailable: 25%
-        timeoutSeconds: 600
-        updatePeriodSeconds: 1
-      type: Rolling
     template:
       metadata:
         labels:
@@ -35,7 +25,7 @@ objects:
         - env:
           - name: CASSANDRA_START_RPC
             value: "true"
-          image: cassandra@sha256:32660b3d988a33f3bdd9f191e7dbb11d3e7ba4293c07b2923380dc3cf720efbf
+          image: cassandra:3.0.9
           imagePullPolicy: Always
           name: hawkular-cassandra
           ports:
@@ -61,18 +51,6 @@ objects:
         volumes:
         - emptyDir: {}
           name: hawkular-cassandra-1
-    test: false
-    triggers:
-    - type: ConfigChange
-    - imageChangeParams:
-        automatic: true
-        containerNames:
-        - hawkular-cassandra
-        from:
-          kind: ImageStreamTag
-          name: hawkular-cassandra:3.0.9
-          namespace: myproject
-      type: ImageChange
 - apiVersion: v1
   kind: Service
   metadata:
@@ -116,16 +94,6 @@ objects:
     selector:
       app: hawkular
       deploymentconfig: hawkular
-    strategy:
-      activeDeadlineSeconds: 21600
-      resources: {}
-      rollingParams:
-        intervalSeconds: 1
-        maxSurge: 25%
-        maxUnavailable: 25%
-        timeoutSeconds: 600
-        updatePeriodSeconds: 1
-      type: Rolling
     template:
       metadata:
         labels:
@@ -139,7 +107,7 @@ objects:
           - name: ADMIN_TOKEN
           - name: HAWKULAR_AGENT_ENABLE
             value: "false"
-          image: hawkular/hawkular-services@sha256:cdbfb2a2dd2835a5242751b30382753e57f6666953939d12a0e987a5d8d34dc3
+          image: hawkular/hawkular-services:latest
           imagePullPolicy: Always
           name: hawkular
           ports:
@@ -150,7 +118,6 @@ objects:
           - containerPort: 8787
             protocol: TCP
           resources: {}
-          terminationMessagePath: /dev/termination-log
           volumeMounts:
           - mountPath: /var/opt/hawkular
             name: hawkular-1
@@ -161,18 +128,6 @@ objects:
         volumes:
         - emptyDir: {}
           name: hawkular-1
-    test: false
-    triggers:
-    - type: ConfigChange
-    - imageChangeParams:
-        automatic: true
-        containerNames:
-        - hawkular
-        from:
-          kind: ImageStreamTag
-          name: hawkular:latest
-          namespace: myproject
-      type: ImageChange
 - apiVersion: v1
   kind: Service
   metadata:
@@ -208,16 +163,6 @@ objects:
     selector:
       app: grafana
       deploymentconfig: grafana
-    strategy:
-      activeDeadlineSeconds: 21600
-      resources: {}
-      rollingParams:
-        intervalSeconds: 1
-        maxSurge: 25%
-        maxUnavailable: 25%
-        timeoutSeconds: 600
-        updatePeriodSeconds: 1
-      type: Rolling
     template:
       metadata:
         labels:
@@ -225,30 +170,17 @@ objects:
           deploymentconfig: grafana
       spec:
         containers:
-        - image: hawkular/hawkular-grafana-datasource@sha256:d657079c871d288c0754b27fbba3254d3e20aac5dd69d7a64aaf84d728b32f52
+        - image: hawkular/hawkular-grafana-datasource:resolve-vars-annots
           imagePullPolicy: Always
           name: grafana
           ports:
           - containerPort: 3000
             protocol: TCP
           resources: {}
-          terminationMessagePath: /dev/termination-log
         dnsPolicy: ClusterFirst
         restartPolicy: Always
         securityContext: {}
         terminationGracePeriodSeconds: 30
-    test: false
-    triggers:
-    - type: ConfigChange
-    - imageChangeParams:
-        automatic: true
-        containerNames:
-        - grafana
-        from:
-          kind: ImageStreamTag
-          name: grafana:resolve-vars-annots
-          namespace: myproject
-      type: ImageChange
 - apiVersion: v1
   kind: Service
   metadata:
@@ -276,16 +208,6 @@ objects:
     selector:
       app: bootstrap
       deploymentconfig: bootstrap
-    strategy:
-      activeDeadlineSeconds: 21600
-      resources: {}
-      rollingParams:
-        intervalSeconds: 1
-        maxSurge: 25%
-        maxUnavailable: 25%
-        timeoutSeconds: 600
-        updatePeriodSeconds: 1
-      type: Rolling
     template:
       metadata:
         labels:
@@ -298,27 +220,14 @@ objects:
             value: falco
           - name: DASHBOARDS
             value: vertx-hwk falco
-          image: jotak/hawkular-grafana-bootstrap@sha256:8a3ade99fcc809ba4235db6d40356e99239d14367a818066638eb870e6c98d69
+          image: jotak/hawkular-grafana-bootstrap:latest
           imagePullPolicy: Always
           name: bootstrap
           resources: {}
-          terminationMessagePath: /dev/termination-log
         dnsPolicy: ClusterFirst
         restartPolicy: Always
         securityContext: {}
         terminationGracePeriodSeconds: 30
-    test: false
-    triggers:
-    - type: ConfigChange
-    - imageChangeParams:
-        automatic: true
-        containerNames:
-        - bootstrap
-        from:
-          kind: ImageStreamTag
-          name: bootstrap:latest
-          namespace: myproject
-      type: ImageChange
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
@@ -331,21 +240,8 @@ objects:
     selector:
       app: falco
       deploymentconfig: falco
-    strategy:
-      activeDeadlineSeconds: 21600
-      resources: {}
-      rollingParams:
-        intervalSeconds: 1
-        maxSurge: 25%
-        maxUnavailable: 25%
-        timeoutSeconds: 600
-        updatePeriodSeconds: 1
-      type: Rolling
     template:
       metadata:
-        annotations:
-          openshift.io/generated-by: OpenShiftWebConsole
-        creationTimestamp: null
         labels:
           app: falco
           deploymentconfig: falco
@@ -354,30 +250,17 @@ objects:
         - env:
           - name: HAWKULAR_HOST
             value: hawkular
-          image: jotak/falco-the-hawk@sha256:744abc5fe29ddffe142e76344afe155e48aadaba86ce102ada5b63f2bdeb6054
+          image: jotak/falco-the-hawk:latest
           imagePullPolicy: Always
           name: falco
           ports:
           - containerPort: 8081
             protocol: TCP
           resources: {}
-          terminationMessagePath: /dev/termination-log
         dnsPolicy: ClusterFirst
         restartPolicy: Always
         securityContext: {}
         terminationGracePeriodSeconds: 30
-    test: false
-    triggers:
-    - type: ConfigChange
-    - imageChangeParams:
-        automatic: true
-        containerNames:
-        - falco
-        from:
-          kind: ImageStreamTag
-          name: falco:latest
-          namespace: myproject
-      type: ImageChange
 - apiVersion: v1
   kind: Service
   metadata:
