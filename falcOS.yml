@@ -1,0 +1,419 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: falcOS
+objects:
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    generation: 1
+    labels:
+      app: hawkular-cassandra
+    name: hawkular-cassandra
+  spec:
+    replicas: 1
+    selector:
+      app: hawkular-cassandra
+      deploymentconfig: hawkular-cassandra
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          app: hawkular-cassandra
+          deploymentconfig: hawkular-cassandra
+      spec:
+        containers:
+        - env:
+          - name: CASSANDRA_START_RPC
+            value: "true"
+          image: cassandra@sha256:32660b3d988a33f3bdd9f191e7dbb11d3e7ba4293c07b2923380dc3cf720efbf
+          imagePullPolicy: Always
+          name: hawkular-cassandra
+          ports:
+          - containerPort: 7000
+            protocol: TCP
+          - containerPort: 7001
+            protocol: TCP
+          - containerPort: 7199
+            protocol: TCP
+          - containerPort: 9042
+            protocol: TCP
+          - containerPort: 9160
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          volumeMounts:
+          - mountPath: /var/lib/cassandra
+            name: hawkular-cassandra-1
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - emptyDir: {}
+          name: hawkular-cassandra-1
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - hawkular-cassandra
+        from:
+          kind: ImageStreamTag
+          name: hawkular-cassandra:3.0.9
+          namespace: myproject
+      type: ImageChange
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: hawkular-cassandra
+    name: hawkular-cassandra
+  spec:
+    ports:
+    - name: 7000-tcp
+      port: 7000
+      protocol: TCP
+      targetPort: 7000
+    - name: 7001-tcp
+      port: 7001
+      protocol: TCP
+      targetPort: 7001
+    - name: 7199-tcp
+      port: 7199
+      protocol: TCP
+      targetPort: 7199
+    - name: 9042-tcp
+      port: 9042
+      protocol: TCP
+      targetPort: 9042
+    - name: 9160-tcp
+      port: 9160
+      protocol: TCP
+      targetPort: 9160
+    selector:
+      deploymentconfig: hawkular-cassandra
+    type: ClusterIP
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    generation: 1
+    labels:
+      app: hawkular
+    name: hawkular
+  spec:
+    replicas: 1
+    selector:
+      app: hawkular
+      deploymentconfig: hawkular
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          app: hawkular
+          deploymentconfig: hawkular
+      spec:
+        containers:
+        - env:
+          - name: CASSANDRA_NODES
+            value: hawkular-cassandra
+          - name: ADMIN_TOKEN
+          - name: HAWKULAR_AGENT_ENABLE
+            value: "false"
+          image: hawkular/hawkular-services@sha256:cdbfb2a2dd2835a5242751b30382753e57f6666953939d12a0e987a5d8d34dc3
+          imagePullPolicy: Always
+          name: hawkular
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          - containerPort: 8443
+            protocol: TCP
+          - containerPort: 8787
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          volumeMounts:
+          - mountPath: /var/opt/hawkular
+            name: hawkular-1
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - emptyDir: {}
+          name: hawkular-1
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - hawkular
+        from:
+          kind: ImageStreamTag
+          name: hawkular:latest
+          namespace: myproject
+      type: ImageChange
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: hawkular
+    name: hawkular
+  spec:
+    ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    - name: 8443-tcp
+      port: 8443
+      protocol: TCP
+      targetPort: 8443
+    - name: 8787-tcp
+      port: 8787
+      protocol: TCP
+      targetPort: 8787
+    selector:
+      deploymentconfig: hawkular
+    type: ClusterIP
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    generation: 1
+    labels:
+      app: grafana
+    name: grafana
+  spec:
+    replicas: 1
+    selector:
+      app: grafana
+      deploymentconfig: grafana
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          app: grafana
+          deploymentconfig: grafana
+      spec:
+        containers:
+        - image: hawkular/hawkular-grafana-datasource@sha256:d657079c871d288c0754b27fbba3254d3e20aac5dd69d7a64aaf84d728b32f52
+          imagePullPolicy: Always
+          name: grafana
+          ports:
+          - containerPort: 3000
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - grafana
+        from:
+          kind: ImageStreamTag
+          name: grafana:resolve-vars-annots
+          namespace: myproject
+      type: ImageChange
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: grafana
+    name: grafana
+  spec:
+    ports:
+    - name: 3000-tcp
+      port: 3000
+      protocol: TCP
+      targetPort: 3000
+    selector:
+      deploymentconfig: grafana
+    type: ClusterIP
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    generation: 1
+    labels:
+      app: bootstrap
+    name: bootstrap
+  spec:
+    replicas: 1
+    selector:
+      app: bootstrap
+      deploymentconfig: bootstrap
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          app: bootstrap
+          deploymentconfig: bootstrap
+      spec:
+        containers:
+        - env:
+          - name: TENANT
+            value: falco
+          - name: DASHBOARDS
+            value: vertx-hwk falco
+          image: jotak/hawkular-grafana-bootstrap@sha256:8a3ade99fcc809ba4235db6d40356e99239d14367a818066638eb870e6c98d69
+          imagePullPolicy: Always
+          name: bootstrap
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - bootstrap
+        from:
+          kind: ImageStreamTag
+          name: bootstrap:latest
+          namespace: myproject
+      type: ImageChange
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    generation: 1
+    labels:
+      app: falco
+    name: falco
+  spec:
+    replicas: 1
+    selector:
+      app: falco
+      deploymentconfig: falco
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftWebConsole
+        creationTimestamp: null
+        labels:
+          app: falco
+          deploymentconfig: falco
+      spec:
+        containers:
+        - env:
+          - name: HAWKULAR_HOST
+            value: hawkular
+          image: jotak/falco-the-hawk@sha256:744abc5fe29ddffe142e76344afe155e48aadaba86ce102ada5b63f2bdeb6054
+          imagePullPolicy: Always
+          name: falco
+          ports:
+          - containerPort: 8081
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - falco
+        from:
+          kind: ImageStreamTag
+          name: falco:latest
+          namespace: myproject
+      type: ImageChange
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: falco
+    name: falco
+  spec:
+    ports:
+    - name: 8081-tcp
+      port: 8081
+      protocol: TCP
+      targetPort: 8081
+    selector:
+      deploymentconfig: falco
+    type: ClusterIP
+- apiVersion: v1
+  kind: Route
+  metadata:
+    name: falco
+  spec:
+    to:
+      kind: Service
+      name: falco
+- apiVersion: v1
+  kind: Route
+  metadata:
+    name: grafana
+  spec:
+    to:
+      kind: Service
+      name: grafana
+- apiVersion: v1
+  kind: Route
+  metadata:
+    name: hawkular
+  spec:
+    to:
+      kind: Service
+      name: hawkular
