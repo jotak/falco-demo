@@ -3,12 +3,16 @@ package org.hawkular.sample.falco;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import org.hawkular.metrics.client.HawkularClient;
 import org.hawkular.metrics.client.HawkularClientBuilder;
 import org.hawkular.metrics.client.HawkularLogger;
+import org.hawkular.metrics.client.binder.HawkularDropwizardBinder;
 import org.hawkular.metrics.client.model.Gauge;
 import org.hawkular.metrics.client.model.Logger;
+
+import com.codahale.metrics.SharedMetricRegistries;
 
 import flying.spaghetti.code.monster.TotalNonSense;
 import io.vertx.core.AbstractVerticle;
@@ -17,8 +21,7 @@ import io.vertx.core.VertxOptions;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.hawkular.AuthenticationOptions;
-import io.vertx.ext.hawkular.VertxHawkularOptions;
+import io.vertx.ext.dropwizard.DropwizardMetricsOptions;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
@@ -47,23 +50,27 @@ public class GameMonitoring extends AbstractVerticle {
                 .uri(HAWKULAR_URI)
                 .basicAuth(HAWKULAR_USERNAME, HAWKULAR_PASSWORD)
                 .buildLogger("falco");
+        HawkularDropwizardBinder.fromRegistry(SharedMetricRegistries.getOrCreate("reg"))
+                .bindWith(hawkular.getInfo(), 1, TimeUnit.SECONDS);
     }
 
     public static void main(String[] args) throws InterruptedException {
         System.out.println("HAWKULAR_HOST=" + HAWKULAR_HOST);
         System.out.println("HAWKULAR_PORT=" + HAWKULAR_PORT);
-        VertxOptions options = new VertxOptions().setMetricsOptions(
-                new VertxHawkularOptions()
-                        .setEnabled(true)
-                        .setTenant(HAWKULAR_TENANT)
-                        .setHost(HAWKULAR_HOST)
-                        .setPort(HAWKULAR_PORT)
-                        .setAuthenticationOptions(
-                                new AuthenticationOptions()
-                                        .setEnabled(true)
-                                        .setId(HAWKULAR_USERNAME)
-                                        .setSecret(HAWKULAR_PASSWORD)));
-        Vertx.vertx(options).deployVerticle(new GameMonitoring());
+        Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
+                new DropwizardMetricsOptions().setEnabled(true).setRegistryName("reg")));
+//        Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
+//                new VertxHawkularOptions()
+//						.setEnabled(true)
+//						.setTenant(HAWKULAR_TENANT)
+//						.setHost(HAWKULAR_HOST)
+//						.setPort(HAWKULAR_PORT)
+//                        .setAuthenticationOptions(
+//                                new AuthenticationOptions()
+//                                        .setEnabled(true)
+//                                        .setId(HAWKULAR_USERNAME)
+//                                        .setSecret(HAWKULAR_PASSWORD))));
+        vertx.deployVerticle(new GameMonitoring());
     }
 
     @Override

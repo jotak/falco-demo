@@ -29,6 +29,12 @@
 
     <dependency>
       <groupId>io.vertx</groupId>
+      <artifactId>vertx-dropwizard-metrics</artifactId>
+      <version>${vertx.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.vertx</groupId>
       <artifactId>vertx-hawkular-metrics</artifactId>
       <version>${vertx.version}</version>
     </dependency>
@@ -43,6 +49,11 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
       <version>1.7.21</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hawkular.metrics</groupId>
+      <artifactId>hawkular-java-toolbox-dropwizard</artifactId>
+      <version>${hawkular-toolbox.version}</version>
     </dependency>
 
   </dependencies>
