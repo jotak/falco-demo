@@ -16,6 +16,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.hawkular.AuthenticationOptions;
 import io.vertx.ext.hawkular.VertxHawkularOptions;
@@ -28,41 +29,66 @@ import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 public class GameMonitoring extends AbstractVerticle {
 
     private static final Random RANDOM = new Random();
-    private static final String HAWKULAR_HOST = System.getProperty("HAWKULAR_HOST", "localhost");
-    private static final int HAWKULAR_PORT = Integer.parseInt(System.getProperty("HAWKULAR_PORT", "8080"));
-    private static final String HAWKULAR_URI = "http://" + HAWKULAR_HOST + ":" + HAWKULAR_PORT;
-    private static final String HAWKULAR_TENANT = "falco";
-    private static final String HAWKULAR_USERNAME = "jdoe";
-    private static final String HAWKULAR_PASSWORD = "password";
+    private static final String HAWKULAR_SECURED = System.getenv("HAWKULAR_HTTPS");
+    private static final String HAWKULAR_HOST = getEnvOrDefault("HAWKULAR_HOST", "localhost");
+    private static final String HAWKULAR_PORT = getEnvOrDefault("HAWKULAR_PORT", "8080");
+    private static final String HAWKULAR_TENANT = getEnvOrDefault("HAWKULAR_TENANT", "falco");
+    private static final String HAWKULAR_AUTH_TOKEN = System.getenv("HAWKULAR_AUTH_TOKEN");
+    private static final String HAWKULAR_USERNAME = System.getenv("HAWKULAR_USERNAME");
+    private static final String HAWKULAR_PASSWORD = System.getenv("HAWKULAR_PASSWORD");
+    private static final String HAWKULAR_URI = ("true".equals(HAWKULAR_SECURED) ? "https://" : "http://")
+            + HAWKULAR_HOST + ":" + HAWKULAR_PORT;
 
     private final HawkularClient hawkular;
     private final HawkularLogger hawkularLogger;
 
+    private static String getEnvOrDefault(String key, String def) {
+        String env = System.getenv(key);
+        if (env == null) {
+            return def;
+        }
+        return env;
+    }
+
     private GameMonitoring() {
-        hawkular = new HawkularClientBuilder(HAWKULAR_TENANT)
-                .uri(HAWKULAR_URI)
-                .basicAuth(HAWKULAR_USERNAME, HAWKULAR_PASSWORD)
-                .build();
-        hawkularLogger = new HawkularClientBuilder(HAWKULAR_TENANT)
-                .uri(HAWKULAR_URI)
-                .basicAuth(HAWKULAR_USERNAME, HAWKULAR_PASSWORD)
-                .buildLogger("falco");
+        hawkular = hawkularBuilder().build();
+        hawkularLogger = hawkularBuilder().buildLogger("falco");
+    }
+
+    private static HawkularClientBuilder hawkularBuilder() {
+        HawkularClientBuilder builder = new HawkularClientBuilder(HAWKULAR_TENANT).uri(HAWKULAR_URI);
+        if (HAWKULAR_AUTH_TOKEN != null) {
+            builder.bearerToken(HAWKULAR_AUTH_TOKEN);
+        } else if (HAWKULAR_USERNAME != null && HAWKULAR_PASSWORD != null) {
+            builder.basicAuth(HAWKULAR_USERNAME, HAWKULAR_PASSWORD);
+        }
+        return builder;
     }
 
     public static void main(String[] args) throws InterruptedException {
         System.out.println("HAWKULAR_HOST=" + HAWKULAR_HOST);
         System.out.println("HAWKULAR_PORT=" + HAWKULAR_PORT);
+        AuthenticationOptions authenticationOptions = new AuthenticationOptions();
+        VertxHawkularOptions vertxHawkularOptions = new VertxHawkularOptions()
+                .setEnabled(true)
+                .setTenant(HAWKULAR_TENANT)
+                .setHost(HAWKULAR_HOST)
+                .setPort(Integer.parseInt(HAWKULAR_PORT));
+        if (HAWKULAR_AUTH_TOKEN != null) {
+            vertxHawkularOptions.setHttpHeaders(new JsonObject()
+                    .put("Authorization", "Bearer " + HAWKULAR_AUTH_TOKEN));
+        } else if (HAWKULAR_USERNAME != null && HAWKULAR_PASSWORD != null) {
+            authenticationOptions = authenticationOptions
+                    .setEnabled(true)
+                    .setId(HAWKULAR_USERNAME)
+                    .setSecret(HAWKULAR_PASSWORD);
+        }
+        if ("true".equals(HAWKULAR_SECURED)) {
+            vertxHawkularOptions.setHttpOptions(new HttpClientOptions().setSsl(true));
+        }
         VertxOptions options = new VertxOptions().setMetricsOptions(
-                new VertxHawkularOptions()
-                        .setEnabled(true)
-                        .setTenant(HAWKULAR_TENANT)
-                        .setHost(HAWKULAR_HOST)
-                        .setPort(HAWKULAR_PORT)
-                        .setAuthenticationOptions(
-                                new AuthenticationOptions()
-                                        .setEnabled(true)
-                                        .setId(HAWKULAR_USERNAME)
-                                        .setSecret(HAWKULAR_PASSWORD)));
+                vertxHawkularOptions
+                        .setAuthenticationOptions(authenticationOptions));
         Vertx.vertx(options).deployVerticle(new GameMonitoring());
     }
 
