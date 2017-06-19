@@ -34,6 +34,7 @@
   var audioIcon = $("#audio-icon");
   var audioOn = true;
   var audioStreamElt = document.getElementById("audio-stream");
+  audioStreamElt.volume = 0.5;
   audioIcon.click(function() {
     audioStreamElt.muted = !audioStreamElt.muted;
     audioIcon.attr("src", audioStreamElt.muted ? "unmute.png" : "mute.png");

@@ -1,35 +1,14 @@
 version: '2'
 services:
-  hawkular:
-    image: "hawkular/hawkular-services:latest"
+  prometheus:
+    image: "jotak/falco-prometheus:latest"
     ports:
-      - "8080:8080"
-      - "8443:8443"
-      - "9990:9990"
-    # volumes:
-    #   - /tmp/opt/hawkular/server:/opt/data:Z
-    environment:
-      - CASSANDRA_NODES=hawkular-cassandra
-      - ADMIN_TOKEN
-      - HAWKULAR_AGENT_ENABLE=false
-  hawkular-cassandra:
-    image: cassandra:3.0.9
-    environment:
-      - CASSANDRA_START_RPC=true
+      - "9090:9090"
   grafana:
-    image: "hawkular/hawkular-grafana-datasource:resolve-vars-annots"
+    image: "grafana/grafana:latest"
     ports:
       - "3000:3000"
-  bootstrap:
-    image: "jotak/hawkular-grafana-bootstrap:latest"
-    environment:
-      - TENANT=falco
-      - DASHBOARDS=vertx-hwk falco
   falco:
     image: "jotak/falco-the-hawk:latest"
     ports:
       - "8081:8081"
-    environment:
-      - HAWKULAR_HOST=hawkular
-      - HAWKULAR_USERNAME=jdoe
-      - HAWKULAR_PASSWORD=password

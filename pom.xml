@@ -10,7 +10,7 @@
 
   <properties>
     <vertx.version>3.4.1</vertx.version>
-    <hawkular-toolbox.version>0.1.0-SNAPSHOT</hawkular-toolbox.version>
+    <prometheus.client.version>0.0.23</prometheus.client.version>
   </properties>
 
   <dependencies>
@@ -29,14 +29,19 @@
 
     <dependency>
       <groupId>io.vertx</groupId>
-      <artifactId>vertx-hawkular-metrics</artifactId>
+      <artifactId>vertx-dropwizard-metrics</artifactId>
       <version>${vertx.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>org.hawkular.metrics</groupId>
-      <artifactId>hawkular-java-toolbox</artifactId>
-      <version>${hawkular-toolbox.version}</version>
+      <groupId>io.prometheus</groupId>
+      <artifactId>simpleclient_dropwizard</artifactId>
+      <version>${prometheus.client.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.prometheus</groupId>
+      <artifactId>simpleclient_vertx</artifactId>
+      <version>${prometheus.client.version}</version>
     </dependency>
 
     <dependency>
