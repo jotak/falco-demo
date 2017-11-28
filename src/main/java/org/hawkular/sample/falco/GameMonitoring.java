@@ -1,28 +1,24 @@
 package org.hawkular.sample.falco;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Random;
-
-import com.codahale.metrics.SharedMetricRegistries;
-
 import flying.spaghetti.code.monster.TotalNonSense;
-import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.Gauge;
-import io.prometheus.client.dropwizard.DropwizardExports;
-import io.prometheus.client.vertx.MetricsHandler;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.dropwizard.DropwizardMetricsOptions;
+import io.vertx.ext.prometheus.VertxPrometheusOptions;
+import io.vertx.ext.prometheus.impl.PrometheusVertxMetrics;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.PermittedOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Random;
 
 public class GameMonitoring extends AbstractVerticle {
 
@@ -34,7 +30,6 @@ public class GameMonitoring extends AbstractVerticle {
     private final Gauge heatLimit;
 
     private GameMonitoring() {
-        CollectorRegistry.defaultRegistry.register(new DropwizardExports(SharedMetricRegistries.getOrCreate("vertx")));
         score = Gauge.build()
                 .name("falco_score")
                 .help("Player score")
@@ -58,9 +53,7 @@ public class GameMonitoring extends AbstractVerticle {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        DropwizardMetricsOptions dwOptions = new DropwizardMetricsOptions()
-                .setEnabled(true)
-                .setRegistryName("vertx");
+        VertxPrometheusOptions dwOptions = new VertxPrometheusOptions().setEnabled(true);
         Vertx.vertx(new VertxOptions().setMetricsOptions(dwOptions)).deployVerticle(new GameMonitoring());
     }
 
@@ -69,7 +62,7 @@ public class GameMonitoring extends AbstractVerticle {
         Router router = Router.router(vertx);
 
         // Expose prometheus endpoints
-        router.get("/prom").handler(new MetricsHandler());
+        router.get("/metrics").handler(PrometheusVertxMetrics.createMetricsHandler());
 
         // Allow events for the designated addresses in/out of the event bus bridge
         BridgeOptions opts = new BridgeOptions()
